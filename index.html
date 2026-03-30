@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CarDesk</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div>
+        <h1>CarDesk</h1>
+        <p class="subtitle">윈도우에서 바로 보는 내 차 대시보드</p>
+      </div>
+      <div class="topbar-actions">
+        <span id="config-status" class="badge">설정 필요</span>
+        <button id="open-settings-btn" class="btn">차량 설정</button>
+      </div>
+    </header>
+
+    <section class="widget">
+      <div class="widget-title-row">
+        <h2>바탕화면 위젯</h2>
+        <span id="car-name-pill" class="pill">차량 미설정</span>
+      </div>
+      <div class="widget-grid">
+        <div class="metric">
+          <span>총 주행거리</span>
+          <strong id="metric-total-km">-</strong>
+        </div>
+        <div class="metric">
+          <span>오늘 주행거리</span>
+          <strong id="metric-today-km">-</strong>
+        </div>
+        <div class="metric">
+          <span>엔진 가동시간</span>
+          <strong id="metric-engine-hours">-</strong>
+        </div>
+        <div class="metric">
+          <span>이번 달 차량비</span>
+          <strong id="metric-monthly-cost">-</strong>
+        </div>
+        <div class="metric">
+          <span>다음 정비</span>
+          <strong id="metric-next-maintenance">-</strong>
+        </div>
+        <div class="metric">
+          <span>주변 최저가</span>
+          <strong id="metric-lowest-fuel">-</strong>
+        </div>
+      </div>
+    </section>
+
+    <main class="dashboard-grid">
+      <section class="card" id="card-driving">
+        <div class="card-header">
+          <h3>주행거리 / 엔진 가동시간</h3>
+        </div>
+        <form id="drive-log-form" class="form-row">
+          <label>
+            주행거리(km)
+            <input type="number" id="drive-distance" min="0" step="0.1" required />
+          </label>
+          <label>
+            엔진 시간(분)
+            <input type="number" id="drive-engine-minutes" min="0" step="1" required />
+          </label>
+          <button type="submit" class="btn primary">주행 기록 추가</button>
+        </form>
+        <ul id="drive-log-list" class="list"></ul>
+      </section>
+
+      <section class="card" id="card-maintenance">
+        <div class="card-header">
+          <h3>정비할 것</h3>
+        </div>
+        <form id="maintenance-form" class="form-row">
+          <label>
+            정비 항목
+            <input type="text" id="maintenance-name" placeholder="예: 타이어 위치교환" required />
+          </label>
+          <label>
+            목표 주행거리(km)
+            <input type="number" id="maintenance-due-km" min="0" step="1" />
+          </label>
+          <label>
+            목표 날짜
+            <input type="date" id="maintenance-due-date" />
+          </label>
+          <button type="submit" class="btn primary">정비 항목 추가</button>
+        </form>
+        <ul id="maintenance-list" class="list"></ul>
+      </section>
+
+      <section class="card" id="card-expense">
+        <div class="card-header">
+          <h3>자동차 가계부</h3>
+        </div>
+        <form id="expense-form" class="form-row">
+          <label>
+            항목
+            <select id="expense-category" required>
+              <option value="주유">주유</option>
+              <option value="정비">정비</option>
+              <option value="세차">세차</option>
+              <option value="보험">보험</option>
+              <option value="통행료">통행료</option>
+              <option value="기타">기타</option>
+            </select>
+          </label>
+          <label>
+            금액(원)
+            <input type="number" id="expense-amount" min="0" step="100" required />
+          </label>
+          <label>
+            메모
+            <input type="text" id="expense-note" placeholder="예: 엔진오일 교체" />
+          </label>
+          <button type="submit" class="btn primary">지출 추가</button>
+        </form>
+        <ul id="expense-list" class="list"></ul>
+      </section>
+
+      <section class="card" id="card-fuel">
+        <div class="card-header">
+          <h3>주변 최저가 주유소</h3>
+        </div>
+        <form id="fuel-form" class="form-row">
+          <label>
+            주유소 이름
+            <input type="text" id="fuel-station-name" required />
+          </label>
+          <label>
+            가격(원/L)
+            <input type="number" id="fuel-price" min="0" step="1" required />
+          </label>
+          <label>
+            위치 메모
+            <input type="text" id="fuel-location" placeholder="예: 집 근처" />
+          </label>
+          <button type="submit" class="btn primary">가격 업데이트</button>
+        </form>
+        <ul id="fuel-list" class="list"></ul>
+      </section>
+    </main>
+  </div>
+
+  <div id="settings-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="settings-title">차량 설정</h2>
+      </div>
+      <p class="modal-desc">
+        먼저 현재 타고 있는 차량을 등록하면, 이후 주행/정비/가계부/유가 기능이 자동으로 연결됩니다.
+      </p>
+      <form id="settings-form" class="settings-grid">
+        <label>
+          제조사
+          <select id="car-maker" required>
+            <option value="">브랜드 선택</option>
+          </select>
+          <small id="maker-help" class="input-help">SK엔카/K Car 거래 브랜드만 표시됩니다.</small>
+        </label>
+        <label>
+          모델명
+          <select id="car-model" required>
+            <option value="">모델 선택</option>
+          </select>
+          <small id="model-help" class="input-help">제조사를 먼저 선택해 주세요.</small>
+        </label>
+        <label>
+          연료 타입
+          <select id="car-fuel-type" required disabled>
+            <option value="휘발유">휘발유</option>
+            <option value="경유">경유</option>
+            <option value="LPG">LPG</option>
+            <option value="전기">전기</option>
+            <option value="하이브리드">하이브리드</option>
+            <option value="수소">수소</option>
+            <option value="기타">기타</option>
+          </select>
+          <small class="input-help">트림 선택 시 자동 설정됩니다.</small>
+        </label>
+        <label class="full-width">
+          세부 트림
+          <select id="car-powertrain-option">
+            <option value="">브랜드/모델/연식을 먼저 선택하세요</option>
+          </select>
+          <small id="powertrain-help" class="input-help">연식에 맞는 트림만 자동으로 필터링됩니다.</small>
+        </label>
+        <label>
+          파워트레인
+          <input type="text" id="car-powertrain-manual" placeholder="트림 선택 시 자동 입력" readonly />
+        </label>
+        <label>
+          생산 연도 범위
+          <input type="text" id="car-production-years" placeholder="예: 2017~2023" readonly />
+        </label>
+        <label class="full-width">
+          내 차 연식
+          <input type="number" id="car-year" min="1990" max="2100" step="1" required />
+        </label>
+
+        <div class="modal-actions">
+          <button type="button" id="cancel-settings-btn" class="btn ghost">닫기</button>
+          <button type="submit" class="btn primary">설정 저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="./vehicle-catalog.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
